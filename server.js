@@ -3,51 +3,50 @@ const http = require("http");
 const { Server } = require("socket.io");
 
 const app = express();
-
 const server = http.createServer(app);
-
 const io = new Server(server);
 
 app.use(express.static("public"));
-app.get("/", (req, res) => {
-    res.sendFile(__dirname + "/public/index.html");
-});
 
 let waitingPlayer = null;
+
 const rooms = {};
+
 io.on("connection", (socket) => {
 
     console.log("Player Connected:", socket.id);
 
-    if (waitingPlayer) {
+    if (waitingPlayer && waitingPlayer.id !== socket.id) {
 
         const roomId =
             waitingPlayer.id + "-" + socket.id;
-            waitingPlayer.join(roomId);
-socket.join(roomId);
-            rooms[roomId] = {
-    board: Array(25).fill(""),
-    turn: Math.random() > 0.5 ? "X" : "O",
-    gameOver: false
-};
-console.log("TURN =", rooms[roomId].turn);
 
-console.log(
-"First Turn:",
-rooms[roomId].turn
-);
-       waitingPlayer.emit("gameStart", {
-    symbol: "X",
-    roomId,
-    firstTurn: rooms[roomId].turn
-});
+        waitingPlayer.join(roomId);
+        socket.join(roomId);
 
-socket.emit("gameStart", {
-    symbol: "O",
-    roomId,
-    firstTurn: rooms[roomId].turn
-});
+        rooms[roomId] = {
+            board: Array(25).fill(""),
+            turn: "X",
+            gameOver: false,
+            starter: "X"
+        };
 
+        console.log(
+            "Game Started:",
+            roomId
+        );
+
+        waitingPlayer.emit("gameStart", {
+            symbol: "X",
+            roomId,
+            firstTurn: rooms[roomId].turn
+        });
+
+        socket.emit("gameStart", {
+            symbol: "O",
+            roomId,
+            firstTurn: rooms[roomId].turn
+        });
 
         waitingPlayer = null;
 
@@ -58,59 +57,99 @@ socket.emit("gameStart", {
         socket.emit("waiting");
     }
 
-socket.on("move", (data) => {
+    socket.on("move", (data) => {
 
-    const room = rooms[data.roomId];
+        const room = rooms[data.roomId];
 
-    if (!room) return;
+        if (!room) return;
 
-    if (room.gameOver) return;
+        if (room.gameOver) return;
 
-    if (data.player !== room.turn) return;
+        if (data.player !== room.turn) return;
 
-    const index = data.r * 5 + data.c;
+        const index =
+            data.r * 5 + data.c;
 
-    if (room.board[index] !== "") return;
+        if (
+            index < 0 ||
+            index >= 25
+        ) {
+            return;
+        }
 
-    room.board[index] = data.player;
+        if (room.board[index] !== "") {
+            return;
+        }
 
-    room.turn =
-        room.turn === "X"
-        ? "O"
-        : "X";
+        room.board[index] =
+            data.player;
 
-    io.to(data.roomId).emit("move", {
-        r: data.r,
-        c: data.c,
-        player: data.player,
-        nextTurn: room.turn
+        room.turn =
+            room.turn === "X"
+                ? "O"
+                : "X";
+
+        io.in(data.roomId).emit(
+            "move",
+            {
+                r: data.r,
+                c: data.c,
+                player: data.player,
+                nextTurn: room.turn
+            }
+        );
     });
-
-});
 
     socket.on("restart", (roomId) => {
 
-        io.to(roomId)
-            .emit("restart");
+        const room = rooms[roomId];
 
+        if (!room) return;
+
+        room.board =
+            Array(25).fill("");
+
+        room.gameOver = false;
+
+        room.starter =
+            room.starter === "X"
+                ? "O"
+                : "X";
+
+        room.turn =
+            room.starter;
+
+        io.to(roomId).emit(
+            "restart",
+            {
+                firstTurn:
+                    room.turn
+            }
+        );
+
+        console.log(
+            "Restart:",
+            roomId,
+            "First Turn:",
+            room.turn
+        );
+    });
+
+    socket.on("gameOver", (roomId) => {
+
+        const room = rooms[roomId];
+
+        if (!room) return;
+
+        room.gameOver = true;
     });
 
     socket.on("disconnect", () => {
 
-        console.log("Disconnected:", socket.id);
-        for (const roomId in rooms) {
-
-    const room = io.sockets.adapter.rooms.get(roomId);
-
-    if(room && room.has(socket.id)){
-
-        socket.to(roomId)
-        .emit("opponentLeft");
-
-        delete rooms[roomId];
-
-    }
-}
+        console.log(
+            "Disconnected:",
+            socket.id
+        );
 
         if (
             waitingPlayer &&
@@ -118,14 +157,42 @@ socket.on("move", (data) => {
         ) {
             waitingPlayer = null;
         }
-    });
 
+        for (const roomId in rooms) {
+
+            const roomMembers =
+                io.sockets.adapter.rooms.get(
+                    roomId
+                );
+
+            if (
+                roomMembers &&
+                roomMembers.has(socket.id)
+            ) {
+
+                socket
+                    .to(roomId)
+                    .emit(
+                        "opponentLeft"
+                    );
+
+                delete rooms[roomId];
+
+                console.log(
+                    "Room Deleted:",
+                    roomId
+                );
+
+                break;
+            }
+        }
+    });
 });
 
-const PORT = process.env.PORT || 3000;
+server.listen(3000, () => {
 
-server.listen(PORT, () => {
-
-    console.log("Running", PORT);
+    console.log(
+        "Server Running On Port 3000"
+    );
 
 });
