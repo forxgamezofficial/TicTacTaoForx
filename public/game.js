@@ -10,6 +10,7 @@ const boardElement = document.getElementById("board");
 const turnElement = document.getElementById("turn");
 const winnerElement = document.getElementById("winner");
 const restartBtn = document.getElementById("restart");
+restartBtn.style.display = "none";
 
 let board = [];
 
@@ -533,6 +534,8 @@ function checkWin(player){
     }
   }
 
+
+
   // vertical
   for(let c=0;c<5;c++){
 
@@ -607,8 +610,16 @@ function checkWin(player){
 
   return false;
 }
+function isDraw(){
 
+    return board.flat().every(
+        cell => cell !== ""
+    );
+
+}
 restartBtn.addEventListener("click",()=>{
+
+    if(!gameOver) return;
 
     socket.emit(
         "restart",
@@ -616,7 +627,6 @@ restartBtn.addEventListener("click",()=>{
     );
 
 });
-
 createBoard();
 
 drawBoard();
@@ -642,27 +652,29 @@ turnElement.innerText =
 
 winnerElement.innerText =
 "You are " + mySymbol;
+restartBtn.style.display = "none";
 
 drawBoard();
 
 });
 
 
-
-socket.on("restart",()=>{
+socket.on("restart",(data)=>{
+  restartBtn.style.display = "none";
 
     createBoard();
-
-    currentPlayer = "X";
 
     gameOver = false;
 
     winningCells = [];
 
-    winnerElement.innerText = "";
+    currentPlayer = data.firstTurn;
 
     turnElement.innerText =
-    "Turn: X";
+    "Turn: " + currentPlayer;
+
+    winnerElement.innerText =
+    "You are " + mySymbol;
 
     drawBoard();
 
@@ -683,16 +695,49 @@ socket.on("move", (data) => {
 
     if (checkWin(data.player)) {
 
+        gameOver = true;
+
         drawBoard();
 
-        winnerElement.innerText =
-            data.player +
-            " জিতছে 😂 | " +
-            randomFunnyMessage();
+        restartBtn.style.display = "block";
 
-        gameOver = true;
+        if (data.player === mySymbol) {
+
+            winnerElement.innerText =
+                "🎉 You Win 😂 | " +
+                randomFunnyMessage();
+
+        } else {
+
+            winnerElement.innerText =
+                "💀 You Lose 😂 | " +
+                randomFunnyMessage();
+
+        }
+
+        socket.emit(
+            "gameOver",
+            roomId
+        );
+
         return;
     }
+
+    if (isDraw()) {
+
+    gameOver = true;
+
+    drawBoard();
+
+    restartBtn.style.display = "block";
+
+    winnerElement.innerText =
+        "🤝 Draw Match";
+
+    return;
+
+}
+
 
     currentPlayer = data.nextTurn;
 
@@ -702,5 +747,4 @@ socket.on("move", (data) => {
     drawBoard();
 
 });
-
 
