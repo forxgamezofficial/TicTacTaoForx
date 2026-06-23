@@ -8,54 +8,124 @@ const io = new Server(server);
 
 app.use(express.static("public"));
 
-let waitingPlayer = null;
+
 
 const rooms = {};
+function generateRoomId() {
+
+    const chars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    let roomId = "";
+
+    for (let i = 0; i < 6; i++) {
+
+        roomId += chars[
+            Math.floor(
+                Math.random() * chars.length
+            )
+        ];
+    }
+
+    return roomId;
+}
 
 io.on("connection", (socket) => {
 
     console.log("Player Connected:", socket.id);
 
-    if (waitingPlayer && waitingPlayer.id !== socket.id) {
+   socket.on("createRoom", () => {
 
-        const roomId =
-            waitingPlayer.id + "-" + socket.id;
+    const roomId = generateRoomId();
 
-        waitingPlayer.join(roomId);
+    rooms[roomId] = {
+
+        board: Array(25).fill(""),
+        turn: "X",
+        gameOver: false,
+        starter: "X",
+
+        players: {
+            X: socket.id,
+            O: null
+        }
+    };
+
+    socket.join(roomId);
+
+    socket.emit(
+        "roomCreated",
+        {
+            roomId,
+            symbol: "X"
+        }
+    );
+
+    console.log(
+        "Room Created:",
+        roomId
+    );
+});socket.on(
+    "joinRoom",
+    (roomId) => {
+
+        const room =
+            rooms[roomId];
+
+        if (!room) {
+
+            socket.emit(
+                "roomNotFound"
+            );
+
+            return;
+        }
+
+        if (
+            room.players.O
+        ) {
+
+            socket.emit(
+                "roomFull"
+            );
+
+            return;
+        }
+
+        room.players.O =
+            socket.id;
+
         socket.join(roomId);
 
-        rooms[roomId] = {
-            board: Array(25).fill(""),
-            turn: "X",
-            gameOver: false,
-            starter: "X"
-        };
-
-        console.log(
-            "Game Started:",
-            roomId
+        io.to(roomId).emit(
+            "gameStart",
+            {
+                roomId,
+                firstTurn:
+                    room.turn
+            }
         );
 
-        waitingPlayer.emit("gameStart", {
-            symbol: "X",
-            roomId,
-            firstTurn: rooms[roomId].turn
-        });
+        io.to(
+            room.players.X
+        ).emit(
+            "assignSymbol",
+            "X"
+        );
 
-        socket.emit("gameStart", {
-            symbol: "O",
-            roomId,
-            firstTurn: rooms[roomId].turn
-        });
+        io.to(
+            room.players.O
+        ).emit(
+            "assignSymbol",
+            "O"
+        );
 
-        waitingPlayer = null;
-
-    } else {
-
-        waitingPlayer = socket;
-
-        socket.emit("waiting");
+        console.log(
+            "Player Joined:",
+            roomId
+        );
     }
+);
 
     socket.on("move", (data) => {
 
