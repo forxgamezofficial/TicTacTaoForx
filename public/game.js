@@ -10,6 +10,25 @@ const boardElement = document.getElementById("board");
 const turnElement = document.getElementById("turn");
 const winnerElement = document.getElementById("winner");
 const restartBtn = document.getElementById("restart");
+const createRoomBtn =
+document.getElementById(
+"createRoom"
+);
+
+const joinRoomBtn =
+document.getElementById(
+"joinRoom"
+);
+
+const roomInput =
+document.getElementById(
+"roomInput"
+);
+
+const roomIdText =
+document.getElementById(
+"roomIdText"
+);
 restartBtn.style.display = "none";
 
 let board = [];
@@ -638,25 +657,54 @@ winnerElement.innerText =
 
 });
 
-socket.on("gameStart",(data)=>{
+socket.on(
+"gameStart",
+(data)=>{
 
-mySymbol = data.symbol;
-roomId = data.roomId;
+roomId =
+data.roomId;
 
-gameStarted = true;
+gameStarted =
+true;
 
-currentPlayer = data.firstTurn;
+currentPlayer =
+data.firstTurn;
 
 turnElement.innerText =
-"Turn: " + currentPlayer;
+"Turn: "
++ currentPlayer;
 
 winnerElement.innerText =
-"You are " + mySymbol;
-restartBtn.style.display = "none";
+"You are "
++ mySymbol;
+
+restartBtn.style.display =
+"none";
 
 drawBoard();
 
 });
+
+socket.on(
+"roomNotFound",
+()=>{
+
+alert(
+"Room Not Found"
+);
+
+});
+
+socket.on(
+"roomFull",
+()=>{
+
+alert(
+"Room Full"
+);
+
+});
+
 
 
 socket.on("restart",(data)=>{
@@ -747,4 +795,63 @@ socket.on("move", (data) => {
     drawBoard();
 
 });
+
+createRoomBtn
+.addEventListener(
+"click",
+() => {
+
+socket.emit(
+"createRoom"
+);
+
+});
+joinRoomBtn
+.addEventListener(
+"click",
+() => {
+
+const id =
+roomInput.value
+.trim()
+.toUpperCase();
+
+if(!id) return;
+
+socket.emit(
+"joinRoom",
+id
+);
+
+});
+
+socket.on(
+"roomCreated",
+(data)=>{
+
+roomId =
+data.roomId;
+
+mySymbol =
+data.symbol;
+
+roomIdText.innerText =
+"Room ID: "
++ roomId;
+
+winnerElement.innerText =
+"Waiting for player...";
+
+});
+
+socket.on(
+"assignSymbol",
+(symbol)=>{
+
+mySymbol =
+symbol;
+
+});
+
+
 
