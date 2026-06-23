@@ -108,6 +108,21 @@ background:#ff0000;
 
 @media (max-width: 600px){
 
+  body{
+padding:10px;
+}
+
+.container{
+width:100%;
+max-width:100%;
+}
+
+#roomInput,
+#createRoom,
+#joinRoom{
+font-size:15px;
+}
+
 .container{
 width:95%;
 padding:15px;
@@ -137,13 +152,13 @@ width:100%;
 }
 
 }
-#roomBox{
-
-display:flex;
-flex-direction:column;
-gap:10px;
-margin-bottom:20px;
-
+#roomInput{
+width:100%;
+padding:12px;
+font-size:16px;
+border:none;
+border-radius:10px;
+outline:none;
 }
 
 #roomInput{
@@ -157,19 +172,21 @@ font-size:16px;
 
 #createRoom,
 #joinRoom{
-
+width:100%;
 padding:12px;
 background:#ff2d2d;
 border:none;
-color:white;
 border-radius:10px;
+color:white;
+font-size:16px;
 cursor:pointer;
-
 }
 
 #roomIdText{
-
-font-size:20px;
+width:100%;
+font-size:18px;
 color:#00ff88;
-
+word-break:break-word;
+overflow-wrap:anywhere;
+text-align:center;
 }
