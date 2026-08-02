@@ -657,51 +657,39 @@ winnerElement.innerText =
 
 });
 
-socket.on(
-"gameStart",
-(data)=>{
+socket.on("gameStart", (data) => {
 
-roomId =
-data.roomId;
+    roomId = data.roomId;
 
-gameStarted =
-true;
+    gameStarted = true;
 
-currentPlayer =
-data.firstTurn;
+    gameOver = false;
 
-turnElement.innerText =
-"Turn: "
-+ currentPlayer;
+    currentPlayer = data.firstTurn;
 
-winnerElement.innerText =
-"You are "
-+ mySymbol;
+    turnElement.innerText =
+        "Turn: " + currentPlayer;
 
-restartBtn.style.display =
-"none";
+    winnerElement.innerText =
+        "You are " + mySymbol;
 
-drawBoard();
+    restartBtn.style.display =
+        "none";
+
+    drawBoard();
 
 });
 
-socket.on(
-"roomNotFound",
-()=>{
+socket.on("roomNotFound", () => {
 
-alert(
-"Room Not Found"
-);
+    alert("❌ Room Not Found!");
 
 });
 
-socket.on(
-"roomFull",
-()=>{
 
-alert(
-"Room Full"
-);
+socket.on("roomFull", () => {
+
+    alert("❌ This Room Is Full!");
 
 });
 
@@ -728,12 +716,20 @@ socket.on("restart",(data)=>{
 
 });
 
-socket.on("opponentLeft",()=>{
+socket.on("opponentLeft", () => {
 
     gameStarted = false;
 
+    gameOver = true;
+
+    restartBtn.style.display =
+        "none";
+
     winnerElement.innerText =
-    "Opponent disconnected 😢";
+        "Opponent disconnected 😢";
+
+    turnElement.innerText =
+        "Game Ended";
 
 });
 
@@ -806,22 +802,20 @@ socket.emit(
 );
 
 });
-joinRoomBtn
-.addEventListener(
-"click",
-() => {
+joinRoomBtn.addEventListener("click", () => {
 
-const id =
-roomInput.value
-.trim()
-.toUpperCase();
+    const id = roomInput.value
+        .trim()
+        .toUpperCase();
 
-if(!id) return;
+    if (!id) {
 
-socket.emit(
-"joinRoom",
-id
-);
+        alert("Please enter Room ID");
+
+        return;
+    }
+
+    socket.emit("joinRoom", id);
 
 });
 
@@ -852,6 +846,15 @@ mySymbol =
 symbol;
 
 });
+
+
+socket.on("alreadyJoined", () => {
+
+    alert(
+        "You are already in this room!"
+    );
+
+})
 
 
 
