@@ -2,57 +2,275 @@
 <html lang="en">
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Forx Gamez</title>
+    <meta charset="UTF-8">
 
-<link rel="stylesheet" href="style.css">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#07050d"
+    >
+
+    <meta
+        name="description"
+        content="Forx Gamez — A special 5x5 TicTacToe experience, dedicated to Nacima."
+    >
+
+    <title>Forx Gamez — Nacima Edition</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 
 </head>
 
+
 <body>
 
-<div class="container">
 
-<h1>Forx Gamez</h1>
-<div id="roomBox">
+    <!-- ==================================================
+         MAIN GAME CONTAINER
+    =================================================== -->
 
-<button id="createRoom">
-Create Room
-</button>
+    <main class="container">
 
-<input
-id="roomInput"
-placeholder="Room ID">
 
-<button id="joinRoom">
-Join Room
-</button>
+        <!-- ==================================================
+             HEADER
+        =================================================== -->
 
-<div id="roomIdText"></div>
+        <header class="game-header">
 
-</div>
-<div class="credit">
-5x5 TicTacToe Activity
-</div>
+            <div class="brand-symbol">
+                ✦
+            </div>
 
-<div id="turn">
-Turn: X
-</div>
+            <h1>
+                Forx Gamez
+            </h1>
 
-<div id="board" class="board"></div>
+            <div class="edition">
+                NACIMA EDITION
+            </div>
 
-<div id="winner"></div>
+            <p class="tagline">
+                A little game, made with meaning.
+            </p>
 
-<button id="restart">
-Restart Game
-</button>
+        </header>
 
-</div>
-<script src="/socket.io/socket.io.js"></script>
 
-<script src="game.js"></script>
+
+        <!-- ==================================================
+             ROOM SYSTEM
+        =================================================== -->
+
+        <section
+            id="roomBox"
+            aria-label="Game Room"
+        >
+
+            <div class="room-heading">
+
+                <span class="room-icon">
+                    ◇
+                </span>
+
+                <span>
+                    Enter The Game
+                </span>
+
+            </div>
+
+
+            <!-- Create Room -->
+
+            <button
+                id="createRoom"
+                type="button"
+            >
+                Create New Room
+            </button>
+
+
+            <div class="room-divider">
+
+                <span></span>
+
+                <small>
+                    OR
+                </small>
+
+                <span></span>
+
+            </div>
+
+
+            <!-- Room ID Input -->
+
+            <input
+                id="roomInput"
+                type="text"
+                placeholder="Enter Room ID"
+                maxlength="6"
+                autocomplete="off"
+                spellcheck="false"
+            >
+
+
+            <!-- Join Room -->
+
+            <button
+                id="joinRoom"
+                type="button"
+            >
+                Join Room
+            </button>
+
+
+            <!-- Room ID Display -->
+
+            <div
+                id="roomIdText"
+                aria-live="polite"
+            ></div>
+
+        </section>
+
+
+
+        <!-- ==================================================
+             GAME INFORMATION
+        =================================================== -->
+
+        <div class="credit">
+
+            <span>
+                5 × 5
+            </span>
+
+            <span class="credit-dot">
+                •
+            </span>
+
+            <span>
+                TIC TAC TOE
+            </span>
+
+        </div>
+
+
+
+        <!-- ==================================================
+             TURN DISPLAY
+        =================================================== -->
+
+        <div
+            id="turn"
+            aria-live="polite"
+        >
+            Turn: X
+        </div>
+
+
+
+        <!-- ==================================================
+             GAME BOARD
+        =================================================== -->
+
+        <section
+            id="board"
+            class="board"
+            aria-label="Tic Tac Toe Game Board"
+        >
+
+            <!--
+                Game cells will be created
+                dynamically by game.js
+            -->
+
+        </section>
+
+
+
+        <!-- ==================================================
+             WINNER MESSAGE
+        =================================================== -->
+
+        <div
+            id="winner"
+            aria-live="assertive"
+        ></div>
+
+
+
+        <!-- ==================================================
+             RESTART GAME
+        =================================================== -->
+
+        <button
+            id="restart"
+            type="button"
+        >
+            Restart Game
+        </button>
+
+
+
+        <!-- ==================================================
+             FOOTER DEDICATION
+        =================================================== -->
+
+        <footer class="dedication">
+
+            <div class="dedication-line">
+
+                <span></span>
+
+                <span class="dedication-symbol">
+                    ✦
+                </span>
+
+                <span></span>
+
+            </div>
+
+
+            <p>
+                Dedicated to Nacima
+            </p>
+
+
+            <small>
+                — Made with a little extra meaning —
+            </small>
+
+        </footer>
+
+
+    </main>
+
+
+
+    <!-- ==================================================
+         SOCKET.IO
+    =================================================== -->
+
+    <script src="/socket.io/socket.io.js"></script>
+
+
+    <!-- ==================================================
+         GAME JAVASCRIPT
+    =================================================== -->
+
+    <script src="game.js"></script>
+
 
 </body>
+
 </html>
