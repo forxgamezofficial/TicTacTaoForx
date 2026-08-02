@@ -586,9 +586,16 @@ io.on("connection", (socket) => {
 // START SERVER
 // ==========================================
 
+const PORT = process.env.PORT || 3000;
+
 server.listen(
-    3000,
+    PORT,
     () => {
+        console.log(
+            `Server Running On Port ${PORT}`
+        );
+    }
+);
 
         console.log(
             "================================"
