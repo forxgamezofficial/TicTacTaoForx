@@ -39,7 +39,7 @@ function generateRoomId() {
                     Math.floor(
                         Math.random() * chars.length
                     )
-                ];
+                ]; 
 
         }
 
@@ -585,36 +585,6 @@ io.on("connection", (socket) => {
 // ==========================================
 // START SERVER
 // ==========================================
-
-const PORT = process.env.PORT || 3000;
-
-server.listen(
-    PORT,
-    () => {
-        console.log(
-            `Server Running On Port ${PORT}`
-        );
-    }
-);
-
-        console.log(
-            "================================"
-        );
-
-        console.log(
-            "FORX GAMEZ SERVER"
-        );
-
-        console.log(
-            "Server Running On Port 3000"
-        );
-
-        console.log(
-            "================================"
-        );
-
-    }
-);
 
 const PORT = process.env.PORT || 3000;
 
